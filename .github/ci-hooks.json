@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JayWanX/godot_ci/main/.github/contract/hooks.schema.json",
+
+  "hooks": [
+    {
+      "id": "prepare-python-runtime",
+      "on": {
+        "anchor": "preset-clean",
+        "phase": "after",
+        "chains": ["export"],
+        "presets": [
+          "Windows Desktop Embed Python",
+          "Linux/X11 Embed Python",
+          "macOS Embed Python"
+        ]
+      },
+      "run": "tools/fetch_python_runtime.py",
+      "with": {
+        "inputs": []
+      },
+      "capabilities": ["write:project_tree"],
+      "write_paths": ["python/**"],
+      "outputs": [],
+      "cache_impact": "none",
+      "timeout_minutes": 15
+    }
+  ]
+}

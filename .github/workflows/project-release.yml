@@ -1,0 +1,23 @@
+name: 🚀 Project Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 要发布到的 Tag；留空取触发的 Tag，分支手动触发须填。
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write # 创建 / 上传 Release 到本项目仓库
+
+jobs:
+  release:
+    uses: JayWanX/godot_ci/.github/workflows/project-release.yml@main
+    with:
+      tag: ${{ inputs.tag }}
+      caller-uses-ref: main # 与上面 uses:@main 同值；resolve 期断言它 = 契约 ci.ref = $schema URL 的 ref 段
+    secrets: inherit

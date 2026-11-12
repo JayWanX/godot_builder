@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://fo8qqiy1ape"]
+
+[ext_resource type="Script" uid="uid://cvjibe27tj5kg" path="res://ui/dialogs/dependency_selection_dialog.gd" id="1_deps"]
+
+[node name="DependencySelectionDialog" type="ConfirmationDialog" unique_id=874202444 node_paths=PackedStringArray("items_container", "hint_label")]
+oversampling_override = 1.0
+title = "下载编译依赖"
+initial_position = 1
+size = Vector2i(640, 360)
+min_size = Vector2i(640, 360)
+max_size = Vector2i(1280, 720)
+ok_button_text = "安装"
+cancel_button_text = "取消"
+script = ExtResource("1_deps")
+items_container = NodePath("PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/ItemsContainer")
+hint_label = NodePath("PanelContainer/MarginContainer/VBoxContainer/HintLabel")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=912894774]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -49.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1040738648]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=107693304]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="HintLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1468736369]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+text = "选择要安装的依赖"
+autowrap_mode = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1335747521]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ItemsContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ScrollContainer" unique_id=1472882683]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]

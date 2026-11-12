@@ -1,0 +1,6 @@
+.godot/
+/android/
+bin/
+python/
+__pycache__/
+*.pyc

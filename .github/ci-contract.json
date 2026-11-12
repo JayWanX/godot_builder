@@ -1,0 +1,106 @@
+{
+  // 项目契约模板：复制到项目仓库的 .github/ci-contract.json（布局同本目录，无需重命名）。
+  // 字段唯一权威源是 CI 仓库的 .github/contract/contract.schema.json（不在本包内，
+  // 由 $schema URL 指过去，仅供编辑器补全）；默认值在 schema default 与平台基线。
+  // 全字段说明与用法见同目录 CI-USAGE.md。
+  "$schema": "https://raw.githubusercontent.com/JayWanX/godot_ci/main/.github/contract/contract.schema.json",
+
+  // CI 资产仓库坐标。跨仓形态必填，用于断言 $schema URL 的 ref 段 / ci.ref /
+  // 调用方 uses:@ref 三者一致；单仓自用可省略整段（检出路径由 job.workflow_* 自描述）。
+  // ref=main 跟随 CI 仓库更新；锁版本时与触发器 uses:@ref、$schema URL 的 ref 段
+  // 同步换成同一 40 位 SHA。CI 仓库搬家时改本段 + 触发器 uses: + 两处 $schema URL。
+  "ci": { "repository": "JayWanX/godot_ci", "ref": "main" },
+
+  // 引擎：编译选项（arch / threads / 优化 / 裁剪）不在此，由项目侧 profile.py 与 scons_flags 控制
+  "engine": {
+    "source": "godotengine/godot@4.7.2-stable", // 按项目实际引擎版本填写
+    "target": ["template_release"],
+    "platform": [
+      "linux",
+      "windows",
+      "macos",
+      "android",
+      "ios",
+      "visionos",
+      "web"
+    ]
+  },
+
+  // 构建配置来源，语法同来源声明（前缀强制）：
+  //   local:<path>                          项目仓库内的相对路径（最常用）
+  //   remote:<owner/repo>[@<ref>][:<path>]  从远程仓库取配置（共享 profile / .gdbuild）
+  // local 指向的文件缺失时 resolve 期 notice 并跳过注入。
+  // modules 条目同语法，见同目录 CI-USAGE.md「来源声明语法」。
+  "build": {
+    "paths": {
+      "profile": "local:build/profile.py",
+      "build_profile": "local:build/project.gdbuild"
+    },
+    // 自定义模块清单，条目语法同来源声明（remote: 整仓或 :path 子目录 / local: 项目内目录）。
+    // 目录名由 register_types 注册名解析，重复条目 resolve 期 fail-fast。留空 = 不加模块。
+    // 来源声明语法见同目录 CI-USAGE.md「来源声明语法」。
+    "modules": [
+      // "remote:myorg/my-module@main:modules/my_module",
+      // "local:modules/local_module"
+    ],
+    "scons_flags": "",
+    "compat": { "standard_includes": "auto" }, // auto=跟随基线底值 + skip 规则；on/off 强制
+    // 覆写平台基线的工具链版本（键集同基线 toolchain 段）。留空对象 = 全部跟随基线。
+    // 可覆写键：emsdk（web 的 Emscripten 版本）/ java（Android JDK）/ scons（构建驱动版本）。
+    // 导出用的编辑器档案**不在**这里：它随平台走，见 platforms.<平台>.editor_archive，
+    // 且同一档案被多个平台共用时只下载一份。按需只写要改的那个键。
+    "toolchain": {}
+  },
+
+  // 导出：type 取 official / custom_build；presets 为导出白名单（留空 = 全部预设）。
+  // 预设名须存在于 export_presets.cfg，缺失 resolve 期 fail-fast（拼错名 = 静默丢产物）。
+  "export": {
+    "type": "custom_build",
+    "editor_version": "4.7.2-stable",
+    "presets": [
+      "Windows Desktop",
+      "Windows Desktop Embed Python",
+      "Linux/X11",
+      "Linux/X11 Embed Python",
+      "macOS",
+      "macOS Embed Python"
+    ],
+    "paths": {
+      "project_godot": "project.godot",
+      "export_presets": "export_presets.cfg",
+      "dist": "bin" // 同时作为预设 export_path 基目录与实际输出目录，两者必须一致
+    }
+  },
+
+  // 产物命名：两套模板，按对象划分。prefix 留空取仓库安全名。
+  // build_naming（编译产物）：{prefix} {platform} {target} {arch} {variant}；
+  //   模板未含 {arch} / {variant} 时按维度追加后缀（android 默认 arm64、macOS 单架构、web / android 变体）。
+  // export_naming（导出产物 / Release 附件）：{prefix} {platform} {preset}；
+  //   默认不拼 {platform}——预设名普遍自带平台，再拼会重复（windows_windows_desktop）。
+  //   预设名跨平台通用时改用 "{prefix}_{platform}_{preset}"。渲染结果全局去重，同名 fail-fast。
+  "artifacts": {
+    "prefix": "",
+    "build_naming": "{prefix}_{platform}_{target}",
+    "export_naming": "{prefix}_{preset}",
+    "retention": { "build": 7, "prefetch": 1, "export": 30, "contract": 1 } // 各类产物保留天数
+  },
+
+  // 扩展：manifest 指向项目侧清单（对拷 ci-hooks.json 即落位）。
+  // policy: off | declared
+  "hooks": { "manifest": ".github/ci-hooks.json", "policy": "declared" },
+
+  // platforms：按平台覆写基线 platforms 段的字段（逐平台逐字段合并，未写字段沿用基线）。
+  // 可写字段：build_runner（构建作业 runner）/ export_runner（导出作业 runner）/
+  // editor_archive（导出用编辑器档案后缀）/ variants（构建变体）。
+  // 覆写 runner = 覆写产物最低运行环境（glibc / SDK 组合），项目自担。
+  // 典型用法：需要代码签名时把 export_runner 与 editor_archive 改成原生。
+  // 示例：
+  // "platforms": {
+  //   "macos": { "export_runner": "macos-26", "editor_archive": "macos.universal" }
+  // },
+  "platforms": {},
+
+  // roles：覆写基线 roles 段的链级作业 runner（publish / upload）。
+  // resolve 不在此（其分配先于契约可读，由基线唯一决定，schema 层面即不可写）。
+  "roles": {}
+}

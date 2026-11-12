@@ -1,0 +1,14 @@
+name: 📦 Project Export
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    uses: JayWanX/godot_ci/.github/workflows/export.yml@main
+    with:
+      caller-uses-ref: main # 与上面 uses:@main 同值；resolve 期断言它 = 契约 ci.ref = $schema URL 的 ref 段
+    secrets: inherit # 映射写法见 build.yml 模板

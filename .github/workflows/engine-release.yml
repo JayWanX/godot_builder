@@ -1,0 +1,21 @@
+name: 🏗️ Engine Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 发布到该 Tag 的 Release；留空用 CI 侧默认 engine-snapshot。
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write # 创建 / 上传 Release 到本项目仓库
+
+jobs:
+  engine-release:
+    uses: JayWanX/godot_ci/.github/workflows/engine-release.yml@main
+    with:
+      tag: ${{ inputs.tag }}
+      caller-uses-ref: main # 与上面 uses:@main 同值；resolve 期断言它 = 契约 ci.ref = $schema URL 的 ref 段
+    secrets: inherit

@@ -1,0 +1,14 @@
+name: 🔨 Engine Build
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: JayWanX/godot_ci/.github/workflows/build.yml@main
+    with:
+      caller-uses-ref: main # 与上面 uses:@main 同值；resolve 期断言它 = 契约 ci.ref = $schema URL 的 ref 段
+    secrets: inherit
